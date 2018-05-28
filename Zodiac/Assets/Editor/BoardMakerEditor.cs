@@ -35,6 +35,9 @@ public class BoardMakerEditor : EditorWindow {
 
     private float numberFieldHeight = 15.0f;
 
+    //spacing values
+    private float spaceFromTop = 10.0f;
+
     //colour key
     private Color noneColour = new Color(255, 0, 0);
     private Color basicColour = new Color(0, 0, 255);
@@ -130,30 +133,38 @@ public class BoardMakerEditor : EditorWindow {
     //map drawing function
     private void DrawMap()
     {
+        //get map start pos
+        float mapBaseX = position.width * sidePanelSizeRatio;
+        float mapBaseZ = spaceFromTop;
+
         //for all contents in details list
         for(int i = 0; i < boardDetails.Count; i++)
         {
-            Rect boardTile = GUILayoutUtility.GetRect(tileWidth, tileHeight);
+            //get a rect
+            Rect boardTile = new Rect(mapBaseX + boardDetails[i].information.xPos * tileWidth, mapBaseZ + boardDetails[i].information.zPos * tileHeight, tileWidth, tileHeight);
+            Texture2D tex = new Texture2D(1, 1);
+            tex.SetPixel(0, 0, ColourTexture(boardDetails[i].properties.type));
+            GUI.DrawTexture(boardTile, tex);
         }
     }
 
     //get a color to represent tile
     private Color ColourTexture(TileBehavior.TileType type)
     {
-        Color color;
+        Color colour;
         switch (type)
         {
             case TileBehavior.TileType.NONE:
-                color = noneColour;
+                colour = noneColour;
                 break;
             case TileBehavior.TileType.BASIC:
-                color = basicColour;
+                colour = basicColour;
                 break;
             default:
-                color = noneColour;
+                colour = noneColour;
                 break;
         }
-        return color;
+        return colour;
     }
 
     private void DrawInfoPanel()

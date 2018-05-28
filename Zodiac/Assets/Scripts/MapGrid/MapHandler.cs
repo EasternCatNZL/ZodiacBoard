@@ -5,7 +5,9 @@ using UnityEngine;
 public class MapHandler : MonoBehaviour {
 
     //map representation
+    [SerializeField]
     private TileBehavior[,] board = new TileBehavior[0, 0];
+    [SerializeField]
     private List<TileBehavior> boardDetails = new List<TileBehavior>();
 
 	// Use this for initialization
