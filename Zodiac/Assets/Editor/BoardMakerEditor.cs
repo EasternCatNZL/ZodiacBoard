@@ -10,13 +10,14 @@ public class BoardMakerEditor : EditorWindow {
     private Rect filePanel;
     private Rect drawingPanel;
     private Rect infoPanel;
+    private Rect newPanel;
 
     private Rect upperPanel;
     private Rect lowerPanel;
 
     //non static label text
     private string tileXText = "0";
-    private string tileYText = "0";
+    private string tileZText = "0";
 
     //non static number values
 
@@ -28,15 +29,15 @@ public class BoardMakerEditor : EditorWindow {
     private float sidePanelSizeRatio = 0.2f;
     private float centerPanelSizeRatio = 0.6f;
 
-    private float tileWidth = 5.0f;
-    private float tileHeight = 5.0f;
+    private int tileWidth = 150;
+    private int tileHeight = 150;
 
     private float buttonHeight = 20.0f;
 
     private float numberFieldHeight = 15.0f;
 
     //spacing values
-    private float spaceFromTop = 10.0f;
+    private int spaceFromTop = 20;
 
     //colour key
     private Color noneColour = new Color(255, 0, 0);
@@ -51,6 +52,9 @@ public class BoardMakerEditor : EditorWindow {
     private List<TileBehavior> boardDetails; //list containing current board details
     private TileBehavior tile; //for handling tile behavior
     //private GameObject mapObject;
+
+    //Event handler
+    Event thingshappenin;
 
     [MenuItem("Professor Cat's Lab/Board Maker")]
     public static void ShowWindow()
@@ -67,6 +71,10 @@ public class BoardMakerEditor : EditorWindow {
     //updates whenever something happens with window <- value changed, button pressed, interactable clicked
     private void OnGUI()
     {
+        //set up event
+        thingshappenin = Event.current;
+
+        //draw panels
         DrawFilePanel();
         DrawDrawingPanel();
         DrawInfoPanel();
@@ -79,7 +87,7 @@ public class BoardMakerEditor : EditorWindow {
         GUILayout.BeginArea(filePanel);
         GUILayout.Label("File");
         //object field for map handler
-        map = (MapHandler)EditorGUILayout.ObjectField(map, typeof(MapHandler), false);
+        map = (MapHandler)EditorGUILayout.ObjectField(map, typeof(MapHandler), true);
         //begin horizontal area
         GUILayout.BeginHorizontal();
         //button to load map from map handler object
@@ -141,10 +149,29 @@ public class BoardMakerEditor : EditorWindow {
         for(int i = 0; i < boardDetails.Count; i++)
         {
             //get a rect
-            Rect boardTile = new Rect(mapBaseX + boardDetails[i].information.xPos * tileWidth, mapBaseZ + boardDetails[i].information.zPos * tileHeight, tileWidth, tileHeight);
+            Rect boardTile = new Rect(/*mapBaseX + */boardDetails[i].information.xPos * tileWidth, mapBaseZ + boardDetails[i].information.zPos * tileHeight, tileWidth, tileHeight);
             Texture2D tex = new Texture2D(1, 1);
-            tex.SetPixel(0, 0, ColourTexture(boardDetails[i].properties.type));
+            Color[] color = new Color[1];
+            color[0] = ColourTexture(boardDetails[i].properties.type);
+            //tex.SetPixel(0, 0, ColourTexture(boardDetails[i].properties.type));
+            tex.SetPixels(color);
+            tex.Apply();
             GUI.DrawTexture(boardTile, tex);
+
+            //set event for if clicked on
+            if(thingshappenin.type == EventType.MouseDown && boardTile.Contains(thingshappenin.mousePosition))
+            {
+                //pass this tile's information over to info panel
+                tileXText = boardDetails[i].information.xPos.ToString();
+                tileZText = boardDetails[i].information.zPos.ToString();
+                tileType = boardDetails[i].properties.type;
+
+                //set current tile ref to this tile
+                tile = boardDetails[i];
+
+                //do event
+                thingshappenin.Use();
+            }
         }
     }
 
@@ -170,19 +197,26 @@ public class BoardMakerEditor : EditorWindow {
     private void DrawInfoPanel()
     {
         //define area
-        infoPanel = new Rect(position.width * (sidePanelSizeRatio + centerPanelSizeRatio), 0, position.width * sidePanelSizeRatio, position.height);
+        infoPanel = new Rect(position.width * (sidePanelSizeRatio + centerPanelSizeRatio), 0, position.width * sidePanelSizeRatio, position.height * 0.5f);
         GUILayout.BeginArea(infoPanel);
         GUILayout.Label("Info");
         //labels for which tile is currently being viewed
         GUILayout.BeginHorizontal();
         GUILayout.Label("X: " + tileXText);
-        GUILayout.Label("Y: " + tileYText);
+        GUILayout.Label("Z: " + tileZText);
         GUILayout.EndHorizontal();
         //create fields needed to display tilebehavior
-        tileInformation.xPos = EditorGUILayout.IntField("X pos: ", tileInformation.xPos);
-        tileInformation.zPos = EditorGUILayout.IntField("Z pos: ", tileInformation.zPos);
-        tileType = (TileBehavior.TileType)EditorGUILayout.EnumPopup("Tile type", tileType);
+        tile.information.xPos = EditorGUILayout.DelayedIntField("X pos: ", tile.information.xPos);
+        tile.information.zPos = EditorGUILayout.DelayedIntField("Z pos: ", tile.information.zPos);
+        tile.properties.type = (TileBehavior.TileType)EditorGUILayout.EnumPopup("Tile type", tile.properties.type);
         //end area
         GUILayout.EndArea();
+    }
+
+    private void DrawNewPanel()
+    {
+        //define area
+        newPanel = new Rect(position.width * (sidePanelSizeRatio + centerPanelSizeRatio), position.height * 0.5f, position.width * sidePanelSizeRatio, position.height * 0.5f);
+
     }
 }

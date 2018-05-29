@@ -52,13 +52,4 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   boardDetails:
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
+  - {fileID: 114009189448843368, guid: 2ee1a63303c54fa41878bfa5fbcf662f, type: 2}
