@@ -217,6 +217,9 @@ public class BoardMakerEditor : EditorWindow {
     {
         //define area
         newPanel = new Rect(position.width * (sidePanelSizeRatio + centerPanelSizeRatio), position.height * 0.5f, position.width * sidePanelSizeRatio, position.height * 0.5f);
-
+        //new area
+        GUILayout.BeginArea(newPanel);
+        //end area
+        GUILayout.EndArea();
     }
 }
