@@ -35,4 +35,18 @@ public class TileBehavior : MonoBehaviour {
 	void Update () {
 		
 	}
+
+    //compares the two tiles, and returns true if the same
+    public bool CheckIfSame(TileBehavior other)
+    {
+        bool same = false;
+        if(information.xPos == other.information.xPos
+            && information.zPos == other.information.zPos
+            /*&& properties.type == other.properties.type*/)
+        {
+            same = true;
+        }
+
+        return same;
+    }
 }

@@ -16,10 +16,15 @@ public class BoardMakerEditor : EditorWindow {
     private Rect lowerPanel;
 
     //non static label text
+    private string newMapNameText = "";
     private string tileXText = "0";
     private string tileZText = "0";
 
-    //non static number values
+    //new tile handling vars
+    TileBehavior newTile;
+    private int newTileX = 0;
+    private int newTileZ = 0;
+    TileBehavior.TileType newTileType = TileBehavior.TileType.BASIC;
 
     //non static enum values
     TileBehavior.TileType tileType;
@@ -29,8 +34,8 @@ public class BoardMakerEditor : EditorWindow {
     private float sidePanelSizeRatio = 0.2f;
     private float centerPanelSizeRatio = 0.6f;
 
-    private int tileWidth = 150;
-    private int tileHeight = 150;
+    private float tileWidth = 5.0f;
+    private float tileHeight = 5.0f;
 
     private float buttonHeight = 20.0f;
 
@@ -50,7 +55,7 @@ public class BoardMakerEditor : EditorWindow {
     private MapHandler map; //the map object that is selected
     private TileBehavior[,] board; //the current board object
     private List<TileBehavior> boardDetails; //list containing current board details
-    private TileBehavior tile; //for handling tile behavior
+    private TileBehavior tile/* = new TileBehavior()*/; //for handling tile behavior
     //private GameObject mapObject;
 
     //Event handler
@@ -65,7 +70,7 @@ public class BoardMakerEditor : EditorWindow {
     //works like start() or awake()
     void OnEnable()
     {
-
+        tile = new TileBehavior();
     }
 
     //updates whenever something happens with window <- value changed, button pressed, interactable clicked
@@ -78,8 +83,10 @@ public class BoardMakerEditor : EditorWindow {
         DrawFilePanel();
         DrawDrawingPanel();
         DrawInfoPanel();
+        DrawNewPanel();
     }
 
+    //draws panel used to handle loading and saving map
     private void DrawFilePanel()
     {
         //define area
@@ -101,6 +108,13 @@ public class BoardMakerEditor : EditorWindow {
             SaveMapButtonLogic();
         }
         GUILayout.EndHorizontal();
+        //map name
+        newMapNameText = EditorGUILayout.DelayedTextField("New map name", newMapNameText);
+        //button to deploy map to scene
+        if(GUILayout.Button("Deploy map", GUILayout.Height(buttonHeight)))
+        {
+            DeployMapButtonLogic();
+        }
         //end area
         GUILayout.EndArea();
     }
@@ -123,6 +137,21 @@ public class BoardMakerEditor : EditorWindow {
 
     }
 
+    //logic for map deploy button
+    private void DeployMapButtonLogic()
+    {
+        //check that map exists
+        if (map)
+        {
+            //create a gameobject and attach map to it
+            GameObject newMap = new GameObject(newMapNameText);
+            //attach the map to it
+            newMap.AddComponent<MapHandler>();
+            
+        }
+    }
+
+    //handles drawing the map as a ui
     private void DrawDrawingPanel()
     {
         //define area
@@ -194,8 +223,12 @@ public class BoardMakerEditor : EditorWindow {
         return colour;
     }
 
+    //handles drawing components used to examine and alter tiles
     private void DrawInfoPanel()
     {
+        //set up vars to change tile values if valid
+        TileBehavior createdTile = new TileBehavior();
+
         //define area
         infoPanel = new Rect(position.width * (sidePanelSizeRatio + centerPanelSizeRatio), 0, position.width * sidePanelSizeRatio, position.height * 0.5f);
         GUILayout.BeginArea(infoPanel);
@@ -206,9 +239,15 @@ public class BoardMakerEditor : EditorWindow {
         GUILayout.Label("Z: " + tileZText);
         GUILayout.EndHorizontal();
         //create fields needed to display tilebehavior
-        tile.information.xPos = EditorGUILayout.DelayedIntField("X pos: ", tile.information.xPos);
-        tile.information.zPos = EditorGUILayout.DelayedIntField("Z pos: ", tile.information.zPos);
-        tile.properties.type = (TileBehavior.TileType)EditorGUILayout.EnumPopup("Tile type", tile.properties.type);
+        createdTile.information.xPos = EditorGUILayout.DelayedIntField("X pos: ", tile.information.xPos);
+        createdTile.information.zPos = EditorGUILayout.DelayedIntField("Z pos: ", tile.information.zPos);
+        //after change in ui, check if new tile is valid 
+        if (!tile.CheckIfSame(createdTile))
+        {
+            tile.information.xPos = createdTile.information.xPos;
+            tile.information.zPos = createdTile.information.zPos;
+        }
+        createdTile.properties.type = (TileBehavior.TileType)EditorGUILayout.EnumPopup("Tile type", tile.properties.type);
         //end area
         GUILayout.EndArea();
     }
@@ -219,7 +258,49 @@ public class BoardMakerEditor : EditorWindow {
         newPanel = new Rect(position.width * (sidePanelSizeRatio + centerPanelSizeRatio), position.height * 0.5f, position.width * sidePanelSizeRatio, position.height * 0.5f);
         //new area
         GUILayout.BeginArea(newPanel);
+        //button for new map
+        if(GUILayout.Button("Make new map", GUILayout.Height(buttonHeight)))
+        {
+
+        }
+        //handle new tile stuff
+        GUILayout.Label("New tile");
+        newTileX = EditorGUILayout.DelayedIntField("X pos: ", newTileX);
+        newTileZ = EditorGUILayout.DelayedIntField("Z pos: ", newTileZ);
+        newTileType = (TileBehavior.TileType)EditorGUILayout.EnumPopup("Tile type", newTileType);
+        //button to add new tile to current map
+        if (GUILayout.Button("Add New Tile", GUILayout.Height(buttonHeight)))
+        {
+            NewTileButtonLogic();
+        }
         //end area
         GUILayout.EndArea();
+    }
+
+    //logic to make new map
+    private void NewMapButtonLogic()
+    {
+        map = new MapHandler();
+    }
+
+    //logic to add new tile to current map
+    private void NewTileButtonLogic()
+    {
+        //check that map exists
+        if (map)
+        {
+            //make a new tile
+            TileBehavior createdTile = new TileBehavior();
+            //assign values to new tile
+            createdTile.information.xPos = newTileX;
+            createdTile.information.zPos = newTileZ;
+            createdTile.properties.type = newTileType;
+            //check that this tile does not already exist
+            if (!map.CheckForSameInBoard(createdTile, 0))
+            {
+                //add this new tile to the map
+                map.AddTileToBoard(createdTile);
+            }
+        }
     }
 }

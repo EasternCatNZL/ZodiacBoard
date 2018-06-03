@@ -31,9 +31,40 @@ public class MapHandler : MonoBehaviour {
         return boardDetails;
     }
 
+    public void AddTileToBoard(TileBehavior tile)
+    {
+        boardDetails.Add(tile);
+    }
+
     //save the new board to this object
     public void SetBoard(TileBehavior[,] newBoard)
     {
         board = newBoard;
+    }
+
+    //recursively search through list
+    public bool CheckForSameInBoard(TileBehavior tileToCheck, int currentIndex)
+    {
+        //set up bool
+        bool sameFound = false;
+        //see if current index tile is same as tile to check
+        if (tileToCheck.CheckIfSame(boardDetails[currentIndex])){
+            //if so, then call true
+            sameFound = true;
+            return sameFound;
+        }
+        else
+        {
+            //else, check that current index not last
+            if(currentIndex != boardDetails.Count - 1)
+            {
+                //increment current index
+                currentIndex++;
+                //call function again
+                sameFound = CheckForSameInBoard(tileToCheck, currentIndex);
+            }
+        }
+
+        return sameFound;
     }
 }
