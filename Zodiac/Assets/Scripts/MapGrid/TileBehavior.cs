@@ -36,10 +36,22 @@ public class TileBehavior : MonoBehaviour {
 		
 	}
 
+    //remove self from list
+    public void RemoveSelf()
+    {
+        if (transform.GetComponentInParent<MapHandler>())
+        {
+            transform.GetComponentInParent<MapHandler>().RemoveTile(this);
+        }
+    }
+
     //on destroy, tell its map to remove self from list
     private void OnDestroy()
     {
-        transform.GetComponentInParent<MapHandler>().RemoveTile(this);
+        if (transform.GetComponentInParent<MapHandler>())
+        {
+            transform.GetComponentInParent<MapHandler>().RemoveTile(this);
+        }
     }
 
     //compares the two tiles, and returns true if the same

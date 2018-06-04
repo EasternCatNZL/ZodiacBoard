@@ -29,6 +29,12 @@ public class BoardMakerEditor : EditorWindow {
     private int newTileZ = 0;
     TileBehavior.TileType newTileType = TileBehavior.TileType.BASIC;
 
+    //grid fill handling vars
+    private int fromX = 0;
+    private int fromZ = 0;
+    private int toX = 0;
+    private int toZ = 0;
+
     //non static enum values
     TileBehavior.TileType tileType;
     TileBehavior.TileInformation tileInformation;
@@ -40,7 +46,7 @@ public class BoardMakerEditor : EditorWindow {
     private int tileWidth = 20;
     private int tileHeight = 20;
 
-    private int gapBetweenTiles = 20;
+    private int gapBetweenTiles = 5;
 
     private float buttonHeight = 20.0f;
 
@@ -271,17 +277,33 @@ public class BoardMakerEditor : EditorWindow {
         //create fields needed to display tilebehavior
         createdTile.information.xPos = EditorGUILayout.DelayedIntField("X pos: ", tile.information.xPos);
         createdTile.information.zPos = EditorGUILayout.DelayedIntField("Z pos: ", tile.information.zPos);
-        //after change in ui, check if new tile is valid 
-        if (!map.CheckForSameInBoard(createdTile, 0))
+        //if map exists
+        if (map)
         {
-            tile.information.xPos = createdTile.information.xPos;
-            tile.information.zPos = createdTile.information.zPos;
+            //after change in ui, check if new tile is valid 
+            if (!map.CheckForSameInBoard(createdTile, 0))
+            {
+                tile.information.xPos = createdTile.information.xPos;
+                tile.information.zPos = createdTile.information.zPos;
+            }
         }
         tile.properties.type = (TileBehavior.TileType)EditorGUILayout.EnumPopup("Tile type", tile.properties.type);
+        //button to remove tile
+        if(GUILayout.Button("Remove this tile", GUILayout.Height(buttonHeight)))
+        {
+            RemoveTileButtonLogic();
+        }
         //end area
         GUILayout.EndArea();
         //once done destroy the dummy
         DestroyImmediate(dummyTile);
+    }
+
+    //logic for remove tile logic
+    private void RemoveTileButtonLogic()
+    {
+        tile.RemoveSelf();
+        DestroyImmediate(tile.gameObject);
     }
 
     private void DrawNewPanel()
@@ -304,6 +326,28 @@ public class BoardMakerEditor : EditorWindow {
         if (GUILayout.Button("Add New Tile", GUILayout.Height(buttonHeight)))
         {
             NewTileButtonLogic();
+        }
+        //components for grid logic
+        GUILayout.Label("Fill new grid");
+        //two cols
+        GUILayout.BeginHorizontal();
+        //from col
+        GUILayout.BeginVertical();
+        GUILayout.Label("From:");
+        fromX = EditorGUILayout.IntField(fromX);
+        fromZ = EditorGUILayout.IntField(fromZ);
+        GUILayout.EndVertical();
+        //to col
+        GUILayout.BeginVertical();
+        GUILayout.Label("To:");
+        toX = EditorGUILayout.IntField(toX);
+        toZ = EditorGUILayout.IntField(toZ);
+        GUILayout.EndVertical();
+        GUILayout.EndHorizontal();
+        //button to fill a grid
+        if(GUILayout.Button("Fill grid", GUILayout.Height(buttonHeight)))
+        {
+
         }
         //end area
         GUILayout.EndArea();
@@ -351,4 +395,6 @@ public class BoardMakerEditor : EditorWindow {
             }
         }
     }
+
+    //
 }
