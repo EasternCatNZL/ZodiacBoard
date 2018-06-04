@@ -31,39 +31,57 @@ public class MapHandler : MonoBehaviour {
         return boardDetails;
     }
 
+    public void RemoveTile(TileBehavior tile)
+    {
+        boardDetails.Remove(tile);
+    }
+
     public void AddTileToBoard(TileBehavior tile)
     {
         boardDetails.Add(tile);
     }
 
-    //save the new board to this object
-    public void SetBoard(TileBehavior[,] newBoard)
+    //copy board to this board
+    public void SetBoard(List<TileBehavior> newboard)
     {
-        board = newBoard;
+        //ensure current board empty
+        boardDetails = new List<TileBehavior>();
+        //copy new board to this board
+        for(int i = 0; i < newboard.Count; i++)
+        {
+            boardDetails.Add(newboard[i]);
+        }
     }
+
 
     //recursively search through list
     public bool CheckForSameInBoard(TileBehavior tileToCheck, int currentIndex)
     {
         //set up bool
         bool sameFound = false;
-        //see if current index tile is same as tile to check
-        if (tileToCheck.CheckIfSame(boardDetails[currentIndex])){
-            //if so, then call true
-            sameFound = true;
-            return sameFound;
-        }
-        else
+        //first, check to see if list empty
+        if(boardDetails.Count > 0)
         {
-            //else, check that current index not last
-            if(currentIndex != boardDetails.Count - 1)
+            //see if current index tile is same as tile to check
+            if (tileToCheck.CheckIfSame(boardDetails[currentIndex]))
             {
-                //increment current index
-                currentIndex++;
-                //call function again
-                sameFound = CheckForSameInBoard(tileToCheck, currentIndex);
+                //if so, then call true
+                sameFound = true;
+                return sameFound;
+            }
+            else
+            {
+                //else, check that current index not last
+                if (currentIndex != boardDetails.Count - 1)
+                {
+                    //increment current index
+                    currentIndex++;
+                    //call function again
+                    sameFound = CheckForSameInBoard(tileToCheck, currentIndex);
+                }
             }
         }
+        
 
         return sameFound;
     }
