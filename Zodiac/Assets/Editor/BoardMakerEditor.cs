@@ -28,6 +28,7 @@ public class BoardMakerEditor : EditorWindow {
     private int newTileX = 0;
     private int newTileZ = 0;
     TileBehavior.TileType newTileType = TileBehavior.TileType.BASIC;
+    TileBehavior.TileType fillTileType = TileBehavior.TileType.BASIC;
 
     //grid fill handling vars
     private int fromX = 0;
@@ -344,10 +345,11 @@ public class BoardMakerEditor : EditorWindow {
         toZ = EditorGUILayout.IntField(toZ);
         GUILayout.EndVertical();
         GUILayout.EndHorizontal();
+        fillTileType = (TileBehavior.TileType)EditorGUILayout.EnumPopup("Tile type", fillTileType);
         //button to fill a grid
-        if(GUILayout.Button("Fill grid", GUILayout.Height(buttonHeight)))
+        if (GUILayout.Button("Fill grid", GUILayout.Height(buttonHeight)))
         {
-
+            GridFillButtonLogic();
         }
         //end area
         GUILayout.EndArea();
@@ -396,5 +398,49 @@ public class BoardMakerEditor : EditorWindow {
         }
     }
 
-    //
+    //logic to fill a grid area of the map
+    private void GridFillButtonLogic()
+    {
+        //check that map exists
+        if (map)
+        {
+            //check that values selected work
+            if(toX > fromX && toZ > fromZ)
+            {
+                //for all x
+                for(int i = fromX; i <= toX; i++)
+                {
+                    //for all z
+                    for(int j = fromZ; j <= toZ; j++)
+                    {
+                        //create a gameobject to hold the tile
+                        GameObject newTileObject = new GameObject("Tile");
+                        //attach the tile to the object
+                        TileBehavior createdTile = newTileObject.AddComponent<TileBehavior>();
+                        //assign values to new tile
+                        createdTile.information.xPos = i;
+                        createdTile.information.zPos = j;
+                        createdTile.properties.type = fillTileType;
+                        //check that this tile does not already exist
+                        if (!map.CheckForSameInBoard(createdTile, 0))
+                        {
+                            //attach this new object to the maps object as child
+                            newTileObject.transform.parent = map.gameObject.transform;
+
+                            //add this new tile to the map
+                            map.AddTileToBoard(createdTile);
+
+                            //draw the map again
+                            GetMapDetails();
+                        }
+                        //if it does, destroy the object after comparison
+                        else
+                        {
+                            DestroyImmediate(newTileObject);
+                        }
+                    }
+                }
+            }
+        }
+    }
 }
