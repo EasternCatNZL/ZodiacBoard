@@ -17,6 +17,15 @@ public class TileBehavior : MonoBehaviour {
         public TileType type; //the type of tile, including whether it exists or not
     }
 
+    [System.Serializable]
+    public struct TileNeighbours
+    {
+        public TileBehavior xPosTile; //where other is to +ve x
+        public TileBehavior zPosTile; //where other is to +ve z
+        public TileBehavior xNegTile; //where other is to -ve x
+        public TileBehavior zNegTile; //where other is to -ve z
+    }
+
     public enum TileType
     {
         NONE,
@@ -25,6 +34,7 @@ public class TileBehavior : MonoBehaviour {
 
     public TileInformation information;
     public TileProperties properties;
+    public TileNeighbours neighbours;
 
 	// Use this for initialization
 	void Start () {
@@ -66,5 +76,40 @@ public class TileBehavior : MonoBehaviour {
         }
 
         return same;
+    }
+
+    //Copy information from one tile to another
+    public void CopyTileInfo(TileBehavior other)
+    {
+        //copy information
+        information.xPos = other.information.xPos;
+        information.zPos = other.information.zPos;
+        information.height = other.information.height;
+
+        //copy properties
+        properties.type = other.properties.type;
+    }
+
+    //get the tile type
+    public TileType GetTileType()
+    {
+        return properties.type;
+    }
+
+    //get coords
+    public Vector3 GetWorldCoord()
+    {
+        Vector3 inWorldPos = new Vector3(information.xPos, information.height, information.zPos);
+        return inWorldPos;
+    }
+
+    public int GetXCoord()
+    {
+        return information.xPos;
+    }
+
+    public int GetZCoord()
+    {
+        return information.zPos;
     }
 }

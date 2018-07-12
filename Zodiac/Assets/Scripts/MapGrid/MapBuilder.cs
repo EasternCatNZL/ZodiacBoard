@@ -29,29 +29,50 @@ public class MapBuilder : MonoBehaviour {
 	}
 
     //builds out the map into the world
-    private void BuildMap()
+    public void BuildMap()
     {
         //if map not null, reference the board details of map
         if (map)
         {
             List<TileBehavior> board = map.GetBoardDetails();
+            //create a new parent object for the new board
+            GameObject newBoard = new GameObject("New board");
+            BoardManager manager = newBoard.AddComponent<BoardManager>();
             //for all objects in map
             for (int i = 0; i < board.Count; i++)
             {
                 //if the current object is not null
                 if (board[i])
                 {
-                    //create a tile based on 
+                    //define
+                    GameObject newTile;
+                    //create a tile of type based on coords on tile behavior object
+                    switch (board[i].GetTileType())
+                    {
+                        case TileBehavior.TileType.BASIC:
+                            newTile = Instantiate(basicTile, board[i].GetWorldCoord(), Quaternion.identity);
+                            newTile.transform.SetParent(newBoard.transform);
+                            newTile.name = "Tile " + board[i].GetXCoord() + "," + board[i].GetZCoord();
+                            newTile.GetComponent<TileBehavior>().CopyTileInfo(board[i]);
+                            manager.boardTiles.Add(newTile.GetComponent<TileBehavior>());
+                            break;
+                        case TileBehavior.TileType.NONE:
+                            newTile = Instantiate(voidTile, board[i].GetWorldCoord(), Quaternion.identity);
+                            newTile.transform.SetParent(newBoard.transform);
+                            newTile.name = "Tile " + board[i].GetXCoord() + "," + board[i].GetZCoord();
+                            newTile.GetComponent<TileBehavior>().CopyTileInfo(board[i]);
+                            manager.boardTiles.Add(newTile.GetComponent<TileBehavior>());
+                            break;
+                        default:
+                            Debug.LogWarning("There was no tile information");
+                            break;
+                    }   
                 }
             }
+            //once done, build connections
+            manager.BuildConnections();
         }
-
-       
     }
 
-    //builds connections between tiles once map is complete
-    private void BuildConnections()
-    {
 
-    }
 }
