@@ -18,6 +18,10 @@ public class MapBuilder : MonoBehaviour {
     [Tooltip("The objects used to represent the tiles")]
     public GameObject[] tileArray = new GameObject[0];
 
+    [Header("Tags")]
+    public string boardTag = "Board";
+    public string tileTag = "Tile";
+
 	// Use this for initialization
 	void Start () {
 		
@@ -36,7 +40,8 @@ public class MapBuilder : MonoBehaviour {
         {
             List<TileBehavior> board = map.GetBoardDetails();
             //create a new parent object for the new board
-            GameObject newBoard = new GameObject("New board");
+            GameObject newBoard = new GameObject("New Board");
+            newBoard.tag = boardTag;
             BoardManager manager = newBoard.AddComponent<BoardManager>();
             //for all objects in map
             for (int i = 0; i < board.Count; i++)
@@ -55,6 +60,8 @@ public class MapBuilder : MonoBehaviour {
                             newTile.name = "Tile " + board[i].GetXCoord() + "," + board[i].GetZCoord();
                             newTile.GetComponent<TileBehavior>().CopyTileInfo(board[i]);
                             manager.boardTiles.Add(newTile.GetComponent<TileBehavior>());
+                            //set tag
+                            newTile.tag = tileTag;
                             break;
                         case TileBehavior.TileType.NONE:
                             newTile = Instantiate(voidTile, board[i].GetWorldCoord(), Quaternion.identity);
@@ -62,11 +69,13 @@ public class MapBuilder : MonoBehaviour {
                             newTile.name = "Tile " + board[i].GetXCoord() + "," + board[i].GetZCoord();
                             newTile.GetComponent<TileBehavior>().CopyTileInfo(board[i]);
                             manager.boardTiles.Add(newTile.GetComponent<TileBehavior>());
+                            //set tag
+                            newTile.tag = tileTag;
                             break;
                         default:
                             Debug.LogWarning("There was no tile information");
                             break;
-                    }   
+                    }
                 }
             }
             //once done, build connections
